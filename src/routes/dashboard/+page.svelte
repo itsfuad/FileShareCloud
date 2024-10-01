@@ -187,7 +187,7 @@
                     <button in:fly|global={{y: 5}} class="cancel btn" on:click={clearInput}>
                         Cancel
                     </button>
-                    <button in:fly|global={{y: 5, delay: 50}} class="btn" on:click={uploadFile}>
+                    <button in:fly|global={{y: 5, delay: 50}} class="btn" disabled={uploadStatus == 'uploading'} on:click={uploadFile}>
                         Upload <i class="fa-solid fa-cloud-arrow-up"></i>
                     </button>
                 </div>
@@ -203,13 +203,12 @@
                         or
                     </div>
                     <div class="copyWrapper" in:fly|global={{y: 5, delay: 120}}>
-                        Copy this ID: <button class="copy btn"
+                        Copy id: <button class="copy btn"
                             on:click={() => {
-                                console.log(DownloadID);
-                                navigator.clipboard.writeText(DownloadID);
+                                navigator.clipboard.writeText(`${window.location.origin}/d/${DownloadID}`);
                                 showToastMessage("Copied to clipboard");
                             }}
-                        >{DownloadID}</button>
+                        >{window.location.origin}/d/{DownloadID}</button>
                     </div>
                 </div>
                 <button in:fly|global={{y: 5, delay: 150}} class="close btn" on:click={() => {

@@ -1,5 +1,5 @@
 <script>
-    import { fade, fly, scale } from "svelte/transition";
+    import { fade, fly } from "svelte/transition";
 
     let version = __VERSION__;
 </script>
@@ -28,7 +28,7 @@
             No registration required.
         </li>
         <li class="info" in:fade={{ delay: 200 }}>
-            Your files will be deleted after 6 hours.
+            Your files will be deleted after 30 min.
         </li>
     </div>
 </div>
@@ -63,8 +63,7 @@
     }
 
     .version-info {
-        font-size: 0.7rem;
-        font-family: "thin";
+        font-size: 0.65rem;
         color: #ffffff;
         padding: 0 5px 0 0;
         border-radius: 5px;
