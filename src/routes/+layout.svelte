@@ -1,20 +1,30 @@
 <script lang="ts">
     import "$lib/global.scss";
     import "$lib/fontawesome/css/all.min.css";
-    import { onMount } from "svelte";
     import { fade } from "svelte/transition";
     import NavigationIndicator from "$lib/NavigationIndicator.svelte";
-    let ready = false;
+    import { isLoggedIn } from "$lib/appwrite";
+    import { isSignedIn } from "$lib/store";
+    
+    let loaded = false;
 
-    onMount(() => {
-        ready = true;
-    });
+    async function check() {
+        if (await isLoggedIn()) {
+            console.log("Already logged in");
+            isSignedIn.set(true);
+        } else {
+            console.log("Not logged in");
+        }
+        loaded = true;
+    }
+
+    check();
 
 </script>
 
 
 <NavigationIndicator />
-{#if ready}
+{#if loaded}
 <div class="container">
     <slot></slot>
     <div class="footer" in:fade>

@@ -13,7 +13,7 @@
     --text-color: #d1d7e0;
     --transparent-white: rgba(255, 255, 255, 0.5);
     --transparent-black: rgba(0, 0, 0, 0.2);
-    --error-color: orangered;
+    --error-color: #d45353;
 }
 
 @font-face {
@@ -48,6 +48,16 @@ html, body{
     position: relative;
 }
 
+//turn off autofill styles
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+    transition: background-color 5000s ease-in-out 0s;
+    //text color
+    -webkit-text-fill-color: var(--text-color);
+}
+
 a {
     color: var(--accent);
     font-size: 0.9rem;
@@ -61,6 +71,11 @@ a {
     gap: 5px;
     flex-wrap: wrap;
     padding: 20px;
+}
+
+.dash {
+    font-size: 0.8rem;
+    color: var(--transparent-white);
 }
 
 .cancel, .close {
@@ -91,11 +106,59 @@ a {
         filter: brightness(0.8);
         cursor: not-allowed;
         &:hover{
-            filter: brightness(0.5);
+            filter: brightness(0.8);
         }
     }
 }
 
 .title-head{
     padding-top: 40px;
+}
+
+h1 {
+    font-size: 1.3rem;
+}
+
+h2 {
+    font-size: 1.2rem;
+}
+
+h3 {
+    font-size: 1rem;
+}
+
+.animated {
+    position: relative;
+    label {
+        padding: 3px;
+        margin: 0;
+        font-size: 0.7rem;
+        position: absolute;
+        top: 50%;
+        left: 20px;
+        transform: translateY(-50%);
+        color: #ffffffa6;
+        transition: 200ms;
+        background: var(--ui-color);
+        width: max-content;
+        pointer-events: none;
+    }
+    
+    input:focus + label{
+        top: 0;
+        left: 3px;
+        font-size: 0.6rem;
+        color: white;
+    }
+
+    input::placeholder{
+        opacity: 0;
+    }
+
+    input:not(:placeholder-shown) + label{
+        top: 0;
+        left: 3px;
+        font-size: 0.6rem;
+        color: white;
+    }
 }

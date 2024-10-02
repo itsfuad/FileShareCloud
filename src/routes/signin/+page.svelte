@@ -2,42 +2,33 @@
     import "$lib/forms.scss";
     import { goto } from "$app/navigation";
 
-    import { account } from "$lib/appwrite";
+    import { account, isLoggedIn } from "$lib/appwrite";
     import { fly } from "svelte/transition";
 
-    let verificationInput: HTMLInputElement;
+    let loaded = false;
+
     let uidInput: HTMLInputElement;
-    let phoneInput: HTMLInputElement;
     let emailInput: HTMLInputElement;
     let passwordInput: HTMLInputElement;
     let confirmPasswordInput: HTMLInputElement;
     let uid: string = "";
-    let phone: string = "";
     let email: string = "";
     let password: string = "";
     let confirmPassword: string = "";
-    let verificationCode: string = "";
 
     let showPassword: boolean = false;
 
     let uidLabel: string = "User ID";
-    let phoneLabel: string = "Phone";
     let passwordLabel: string = "Password";
     let confirmPasswordLabel: string = "Confirm Password";
 
-    let errorIn: "uid" | "phone" | "email" | "password" | "confirmPassword" | "verificationCode" | null = null;
+    let errorIn: "uid" | "email" | "password" | "confirmPassword" | "verificationCode" | null = null;
 
     let error: string = "";
 
     let errorMsg: string = "";
 
-    let codeSending = false;
-    let codeSent = false;
-
-    let sentTimeout: NodeJS.Timeout;
-    let timeRemaining = 60;
-
-    let sendable = true;
+    let processing: boolean = false;
 
     const allCountryCodes = [
         "+880", // Bangladesh
@@ -61,30 +52,6 @@
             error = "User ID is required";
             errorIn = "uid";
             uidInput.focus();
-            return false;
-        }
-
-        if (!phone) {
-            error = "Phone is required";
-            errorIn = "phone";
-            phoneInput.focus();
-            return false;
-        }
-
-        // Phone validation
-        // check if phone doesnt start with + sign
-        if (!phone.startsWith("+")) {
-            error = "Phone must start with + sign";
-            errorIn = "phone";
-            phoneInput.focus();
-            return false;
-        }
-
-        // check if phone code is valid
-        if (!isValidNumber(phone)) {
-            error = "Invalid phone number";
-            errorIn = "phone";
-            phoneInput.focus();
             return false;
         }
 
@@ -138,118 +105,33 @@
         if (!preValidate()) {
             return;
         }
-
-        if (!verificationCode) {
-            error = "Verification code is required";
-            errorIn = "verificationCode";
-            verificationInput.focus();
-            return;
-        }
-
         try {
-            try {
-            //check if session exists
-                const session = await account.getSession("current");
-                if (session) {
-                    errorMsg = "Session already exists";
-                    return;
-                }
-            } catch (e) {
-                console.log(e);
-            }
-
-            
-            account
-            .createSession(uid, verificationCode)
-            .then(async(model) => {
-                console.log(model);
-                await account.updatePassword(password);
-                await account.updateEmail(email, password);
-                const currentSession = await account.getSession('current');
-                //logut from other sessions
-                account.listSessions().then((sessions) => {
-                    sessions.sessions.forEach((session) => {
-                        if (session.$id !== currentSession.$id){
-                            account.deleteSession(session.$id);
-                        }
-                    });
-                });
-                localStorage.setItem("session", "true");
-                console.log("Logged in");
-                goto("/dash");
-            })
-            .catch((e) => {
-                errorMsg = "Invalid verification code";
-            });
-        } catch (e) {
+            processing = true;
+            await account.create(
+                uid,
+                email,
+                password,
+            );
+            await account.createEmailPasswordSession(email, password);
+            goto("/dash");
+        } catch (e: any) {
             console.log(e);
+            errorMsg = e.message;
+        } finally {
+            processing = false;
         }
     }
 
-    async function sendCodeHandler() {
-        if (!sendable) {
-            return;
-        }
-
-        if (!preValidate()) {
-            return;
-        }
-
-        try {
-            //check if session exists
-            const session = await account.getSession("current");
-            if (session) {
-                errorMsg = "Session already exists";
-                return;
-            }
-        } catch (e) {
-            console.log(e);
-        }
-
-        codeSending = true;
-        console.log("Sending code", uid);
-
-        try {
-            
-            account
-                .createPhoneToken(uid, phone)
-                .then((model) => {
-                    console.log(model);
-                    codeSent = true;
-                    sendable = false;
-                    codeSending = false;
-                    if (sentTimeout) {
-                        clearTimeout(sentTimeout);
-                    }
-                    sentTimeout = setTimeout(() => {
-                        sendable = true;
-                    }, 60000);
-                    setInterval(() => {
-                        timeRemaining--;
-                    }, 1000);
-                })
-                .catch((e) => {
-                    codeSending = false;
-                    console.log(e);
-                });
-        } catch (e) {
-            codeSending = false;
-            console.log(e);
+    async function check() {
+        if (await isLoggedIn()) {
+            goto("/dash");
+        } else {
+            console.log("Not logged in");
+            loaded = true;
         }
     }
 
-    try {
-        //if user is already logged in, redirect to dashboard
-        account.getSession("current").then((session) => {
-            if (session) {
-                goto("/dash");
-            }
-        }).catch((e) => {
-            console.log(e);
-        });
-    } catch (e) {
-        console.log(e);
-    }
+    check();
 
 </script>
 
@@ -257,6 +139,7 @@
     <title>Sign up</title>
 </svelte:head>
 
+{#if loaded}
 <div class="form-container" in:fly={{y: 10}}>
     <div class="form">
         <h1 class="title">Sign up</h1>
@@ -282,28 +165,6 @@
                     {error}
                 {:else}
                     {uidLabel}
-                {/if}
-            </label>
-        </div>
-        <div class="form-field animated" class:error={errorIn == "phone"}>
-            <input
-                on:input={() => {
-                    if (errorIn === "phone") {
-                        error = "";
-                        errorIn = null;
-                    }
-                }}
-                bind:this={phoneInput}
-                type="phone"
-                name="phone"
-                placeholder="Phone"
-                bind:value={phone}
-            />
-            <label for="phone">
-                {#if errorIn === "phone"}
-                    {error}
-                {:else}
-                    {phoneLabel}
                 {/if}
             </label>
         </div>
@@ -416,52 +277,19 @@
                 {/if}
             </label>
         </div>
-        <div
-            class="form-field animated"
-            class:error={errorIn == "verificationCode"}
-        >
-            <input
-                on:input={() => {
-                    if (errorIn === "verificationCode") {
-                        error = "";
-                        errorIn = null;
-                    }
-                }}
-                bind:this={verificationInput}
-                type="text"
-                name="verificationCode"
-                placeholder="Verification Code"
-                bind:value={verificationCode}
-            />
-            <label for="verificationCode">
-                {#if errorIn === "verificationCode"}
-                    {error}
-                {:else}
-                    Verification Code
-                {/if}
-            </label>
-            <button
-                on:click={sendCodeHandler}
-                class="sendCode"
-                disabled={!sendable || codeSending}
-            >
-                {#if codeSent}
-                    {#if timeRemaining > 0}
-                        Resend in {timeRemaining}s
-                    {:else}
-                        Resend code
-                    {/if}
-                {:else}
-                    Send code
-                {/if}
-            </button>
-        </div>
-        <button class="btn signup" on:click={handleSubmit}>Sign up</button>
+        <button class="btn signup" on:click={handleSubmit} disabled={processing}>
+            {#if processing}
+                Signing up...
+            {:else}
+                Sign up
+            {/if}
+        </button>
         <div class="dash">
             Already have an account? <a href="/login">Login</a>
         </div>
     </div>
 </div>
+{/if}
 
 <style lang="scss">
 
@@ -469,21 +297,4 @@
         margin-top: 22px;
     }
 
-    .sendCode {
-        position: absolute;
-        right: 0;
-        top: 50%;
-        transform: translateY(-50%);
-        background: transparent;
-        border: none;
-        color: var(--accent);
-        font-size: 0.8rem;
-        cursor: pointer;
-        z-index: 10;
-        padding: 5px;
-        &:disabled {
-            filter: brightness(0.7);
-            cursor: not-allowed;
-        }
-    }
 </style>

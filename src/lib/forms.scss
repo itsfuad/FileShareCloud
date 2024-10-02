@@ -1,0 +1,82 @@
+.showPassword {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: var(--text-color);
+    font-size: 0.8rem;
+    cursor: pointer;
+    z-index: 10;
+    padding: 5px;
+}
+
+.errorMsg {
+    font-size: 0.7rem;
+    color: var(--error-color);
+    min-height: 20px;
+    padding-bottom: 10px;
+}
+
+.form-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+}
+
+.title {
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.form {
+    width: 300px;
+    padding: 1rem;
+    border-radius: 12px;
+    background: var(--ui-color);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    color: var(--text-color);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.form-field {
+    position: relative;
+    margin-bottom: 10px;
+    width: 100%;
+    label {
+        left: 0;
+    }
+    input {
+        outline: none;
+        border: none;
+        background: transparent;
+        border-bottom: 2px solid var(--border-color);
+        height: 40px;
+        width: 100%;
+        color: var(--text-color);
+    }
+
+    input:hover {
+        border-bottom-color: rgba(255, 255, 255, 0.3);
+    }
+    input:focus {
+        border-bottom-color: rgba(255, 255, 255, 0.3);
+    }
+    input:not(:placeholder-shown) {
+        border-bottom-color: var(--accent);
+    }
+    &.error {
+        input {
+            border-bottom-color: var(--error-color);
+        }
+        label {
+            color: var(--error-color);
+        }
+    }
+}

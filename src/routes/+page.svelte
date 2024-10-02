@@ -1,7 +1,11 @@
 <script>
+    import { isSignedIn } from "$lib/store";
+
+
     import { fade, fly } from "svelte/transition";
 
     let version = __VERSION__;
+
 </script>
 
 <div class="hero">
@@ -24,16 +28,17 @@
         <li class="info" in:fade={{ delay: 100 }}>
             Upload up to 50MB single file at once.
         </li>
-        <li class="info"  in:fade={{ delay: 150 }}>
-            No registration required.
-        </li>
-        <li class="info" in:fade={{ delay: 200 }}>
+        <li class="info" in:fade={{ delay: 150 }}>
             Your files will be deleted after 30 min.
         </li>
     </div>
 </div>
 
-<a href="/dashboard" class="btn" in:fly={{ delay: 250 }}> Upload Files </a>
+{#if $isSignedIn}
+    <a href="/dash" class="btn" in:fly={{ delay: 250 }}> Dashboard </a>
+{:else}
+    <a href="/signin" class="btn" in:fly={{ delay: 250 }}> Get Started </a>
+{/if}
 
 <div class="terms" in:fade={{ delay: 300 }}>
     <a href="/terms">Terms of Service</a>

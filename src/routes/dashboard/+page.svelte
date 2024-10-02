@@ -4,12 +4,13 @@
     import { showToastMessage } from "@itsfuad/domtoastmessage";
     import QR from "qrcode";
 
-    import { storage, id } from "$lib/appwrite";
+    import { storage, id, account } from "$lib/appwrite";
     
     import { PUBLIC_BUCKET_ID } from '$env/static/public';
     import { goto } from "$app/navigation";
     import { fly } from "svelte/transition";
     import { bytesToReadable } from "$lib/utils";
+    import { Permission, Role } from "appwrite";
 
     let fileInput: FileList | null;
     let fileInputElement: HTMLInputElement;
@@ -35,12 +36,15 @@
 
         uploadStatus = 'uploading';
 
-        const result = await storage.createFile(PUBLIC_BUCKET_ID, id.unique(), fileInput[0], [], (progress) => {
+        const result = await storage.createFile(PUBLIC_BUCKET_ID, id.unique(), fileInput[0], [
+            Permission.read(Role.any()),
+            Permission.delete(Role.user('markedFerry1'))
+        ], (progress) => {
             console.log(progress);
             uploadprogress = progress.progress;
         });
         clearInput();
-        qrURL = await QR.toDataURL(`http://localhost:5173/d/${result.$id}`);
+        qrURL = await QR.toDataURL(`${window.location.origin}/d/${result.$id}`);
         console.log(result.$id);
         DownloadID = result.$id;
         uploadStatus = 'idle';
@@ -247,13 +251,13 @@
         flex-direction: column;
         align-items: center;
         justify-content: flex-start;
-        border: 2px solid var(--border-color);
         background: var(--ui-color);
         border-radius: 12px;
         overflow: hidden;
         max-width: 95vw;
         width: min(400px, 95vw);
         min-height: 340px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     }
 
     .filename {
@@ -301,6 +305,7 @@
             justify-content: center;
             cursor: pointer;
             min-height: 50px;
+            height: 100%;
         }
     }
 
@@ -316,41 +321,6 @@
         text-overflow: ellipsis;
         width: 100%;
         padding: 0 15px;
-    }
-
-    .animated {
-        position: relative;
-        label {
-            padding: 3px;
-            margin: 0;
-            font-size: 0.7rem;
-            position: absolute;
-            top: 50%;
-            left: 20px;
-            transform: translateY(-50%);
-            color: #ffffffa6;
-            transition: 200ms;
-            background: var(--ui-color);
-            width: max-content;
-        }
-        
-        input:focus + label{
-            top: 0;
-            left: 3px;
-            font-size: 0.6rem;
-            color: white;
-        }
-
-        input::placeholder{
-            opacity: 0;
-        }
-
-        input:not(:placeholder-shown) + label{
-            top: 0;
-            left: 3px;
-            font-size: 0.6rem;
-            color: white;
-        }
     }
 
     .drop {
@@ -432,7 +402,6 @@
     label {
         font-size: 1rem;
         font-weight: bold;
-        width: 100%;
         text-align: center;
     }
 
