@@ -39,7 +39,6 @@
     .terms-container {
         padding: 2rem;
         max-width: 800px;
-        margin: 0 auto 30px;
         color: var(--text-color);
         background: var(--bg-color);
     }

@@ -1,24 +1,28 @@
 <script lang="ts">
     import "$lib/global.scss";
     import "$lib/fontawesome/css/all.min.css";
-    import { fade } from "svelte/transition";
+
     import NavigationIndicator from "$lib/NavigationIndicator.svelte";
-    import { isLoggedIn } from "$lib/appwrite";
-    import { isSignedIn } from "$lib/store";
-    
+    import { onMount } from "svelte";
+    import { PUBLIC_BUCKET_ID } from "$env/static/public";
+    import { storage } from "$lib/appwrite";
+    import { Query } from "appwrite";
+   
     let loaded = false;
 
-    async function check() {
-        if (await isLoggedIn()) {
-            console.log("Already logged in");
-            isSignedIn.set(true);
-        } else {
-            console.log("Not logged in");
-        }
-        loaded = true;
-    }
 
-    check();
+    //get this user's uploaded files
+    storage.listFiles(PUBLIC_BUCKET_ID, [
+        Query.select(["name"])
+    ]).then((res) => {
+        console.log(res.files[0]?.$permissions);
+    }).catch((e) => {
+        console.log(e);
+    });
+
+    onMount(() => {
+        loaded = true;
+    });
 
 </script>
 
@@ -27,9 +31,6 @@
 {#if loaded}
 <div class="container">
     <slot></slot>
-    <div class="footer" in:fade>
-        &copy; {new Date().getFullYear()} BrainbirdLab
-    </div>
 </div>
 {/if}
 
@@ -38,7 +39,6 @@
 </svelte:head>
 
 <style lang="scss">
-
     .container {
         padding: 1rem;
         max-width: 800px;
@@ -46,12 +46,5 @@
         color: var(--text-color);
         height: max-content;
         min-height: 100%;
-    }
-    .footer {
-        padding: 1rem;
-        text-align: center;
-        font-size: 0.7rem;
-        position: absolute;
-        bottom: 0;
     }
 </style>

@@ -4,7 +4,7 @@
     import { showToastMessage } from "@itsfuad/domtoastmessage";
     import QR from "qrcode";
 
-    import { storage, id, account } from "$lib/appwrite";
+    import { storage, id, account, check } from "$lib/appwrite";
     
     import { PUBLIC_BUCKET_ID } from '$env/static/public';
     import { goto } from "$app/navigation";
@@ -29,16 +29,28 @@
 
     let tab: 'upload' | 'download' = 'upload';
 
+    check().then((res) => {
+        if (res) {
+            console.log("User is logged in");
+        } else {
+            //goto("/");
+        }
+    }).catch((e) => {
+        console.log(e);
+    });
+
     async function uploadFile() {
         if (!fileInput) {
             return;
         }
 
         uploadStatus = 'uploading';
+        const user = await account.get();
 
         const result = await storage.createFile(PUBLIC_BUCKET_ID, id.unique(), fileInput[0], [
-            Permission.read(Role.any()),
-            Permission.delete(Role.user('markedFerry1'))
+            Permission.read(Role.users()),
+            Permission.read(Role.user(user.$id)),
+            Permission.delete(Role.user(user.$id)),
         ], (progress) => {
             console.log(progress);
             uploadprogress = progress.progress;

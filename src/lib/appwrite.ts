@@ -1,7 +1,6 @@
 import { Client, ID, Storage, Account } from 'appwrite';
 
 import { PUBLIC_PROJECT_ID } from '$env/static/public';
-import { goto } from '$app/navigation';
 import { browser } from '$app/environment';
 
 const client = new Client();
@@ -13,13 +12,25 @@ export const storage = new Storage(client);
 export const account = new Account(client);
 export const id = ID;
 
+export async function check() {
+    if (await isLoggedIn()) {
+        console.log("Already logged in");
+        return true;
+    } else {
+        console.log("Not logged in");
+        return false;
+    }
+}
+
 export async function isLoggedIn() {
     console.log("Checking if logged in");
+    console.log(browser);
     if (browser === false) {
         return false;
     }
     try {
-        await account.get();
+        const res = await account.get();
+        console.log(res);
         return true;
     } catch (e) {
         console.log(e);
