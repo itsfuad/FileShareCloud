@@ -25,11 +25,10 @@
 body {
     font-family: 'light', sans-serif;
     background-color: var(--bg-color);
-    background-image: url('/images/bg.svg');
-    background-blend-mode: soft-light;
-    background-size: cover;
-    background-attachment: fixed;
-    color: var(--text-color);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: safe center;
 }
 
 html, body{

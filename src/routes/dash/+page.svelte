@@ -51,6 +51,9 @@
         {#await storage.listFiles(PUBLIC_BUCKET_ID)}
             Loading files...
         {:then files} 
+            <div class="title">
+                Your files ({files.files.length})
+            </div>
             {#each files.files as file}
                 <div class="file-item">
                     <div class="meta">
@@ -105,6 +108,11 @@
         gap: 1rem;
         min-height: 100vh;
         width: 100%;
+        background: var(--bg-color);
+        .title {
+            margin-top: 10px;
+            font-size: 1.2rem;
+        }
         .file-item {
             display: flex;
             flex-direction: row;
