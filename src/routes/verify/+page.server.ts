@@ -5,8 +5,8 @@ export async function load({request}){
     try {
         const search = new URL(request.url).search;
         const urlSearchParams = new URLSearchParams(search);
-        const userId = urlSearchParams.get('userId') || '';
-        const secret = urlSearchParams.get('secret') || '';
+        const userId = urlSearchParams.get('userId') ?? '';
+        const secret = urlSearchParams.get('secret') ?? '';
 
         if (!userId || !secret) {
             console.log('no query params');
