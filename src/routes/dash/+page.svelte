@@ -51,24 +51,45 @@
         {#await storage.listFiles(PUBLIC_BUCKET_ID)}
             Loading files...
         {:then files} 
-            <div class="title">
-                Your files ({files.files.length})
-            </div>
-            {#each files.files as file}
-                <div class="file-item">
-                    <div class="meta">
-                        <div class="name">
-                            {file.name}
-                        </div>
-                        <div class="type">
-                            {file.mimeType}
-                        </div>
-                    </div>
-                    <div class="size">
-                        {bytesToReadable(file.sizeOriginal)}
-                    </div>
-                </div>
-            {/each}
+            <!-- file explorer using table -->
+            <table>
+                <colgroup>
+                    <col span="1" style="width: 70%;">  
+                    <col span="1" style="width: 100px;">  
+                    <col span="1" style="width: 100px;">
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Type</th>
+                        <th>Size</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {#each files.files as file}
+                        <tr>
+                            <td>{file.name}</td>
+                            <td>
+                                {#if file.mimeType}
+                                    {
+                                        file.mimeType.includes("/") ? file.mimeType.split("/")[1] : file.mimeType
+                                    }
+                                {:else}
+                                    Unknown
+                                {/if}
+                            </td>
+                            <td>{bytesToReadable(file.sizeOriginal)}</td>
+                        </tr>
+                    {/each}
+                </tbody>
+                <!-- File count taking the full width -->
+                <tfoot>
+                    <tr>
+                        <td colspan="2">Total files: {files.total}</td>
+                        <td>{bytesToReadable(files.files.reduce((acc, file) => acc + file.sizeOriginal, 0))}</td>
+                    </tr>
+                </tfoot>
+            </table>
         {:catch error}
             <div>{error.message}</div>
         {/await}
@@ -82,6 +103,8 @@
         color: var(--text-color);
         height: 100%;
         min-height: 100%;
+        padding: 10px;
+        width: min(800px, 100%);
     }
 
     .logout {
@@ -103,48 +126,24 @@
     }
 
     .content {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-        min-height: 100vh;
-        width: 100%;
-        background: var(--bg-color);
-        .title {
-            margin-top: 10px;
-            font-size: 1.2rem;
-        }
-        .file-item {
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-            align-items: center;
-
-            .meta {
-                display: flex;
-                flex-direction: column;
-                align-items: flex-start;
-                justify-content: center;
-                gap: 5px;
-                width: 100%;
-                overflow: hidden;
-            }
-
-            .type {
-                font-size: 0.7rem;
-                color: var(--transparent-white);
-            }
-
-            .name {
-                overflow: hidden;
+        margin-top: 20px;
+        height: 100vh;
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+            border-radius: 5px;
+            th, td {
+                border: 1px solid var(--ui-color);
+                padding: 10px;
+                text-align: left;
+                white-space: nowrap;
                 text-overflow: ellipsis;
-                white-space: nowrap;
-                width: 100%;
+                overflow: hidden;
             }
-
-            .size {
-                white-space: nowrap;
+            th {
+                background: var(--ui-color);
             }
-
         }
     }
 
