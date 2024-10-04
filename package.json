@@ -11,6 +11,7 @@
 	},
 	"devDependencies": {
 		"@itsfuad/domtoastmessage": "^1.0.7",
+		"@supabase/supabase-js": "^2.45.4",
 		"@sveltejs/adapter-auto": "^3.0.0",
 		"@sveltejs/kit": "^2.0.0",
 		"@sveltejs/vite-plugin-svelte": "^3.0.0",

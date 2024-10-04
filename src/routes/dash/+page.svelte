@@ -1,30 +1,37 @@
 <script lang="ts">
     import { goto } from "$app/navigation";
-    import { PUBLIC_BUCKET_ID } from "$env/static/public";
-    import { account, check, storage } from "$lib/appwrite";
     import Preload from "$lib/Preload.svelte";
     import { bytesToReadable } from "$lib/utils";
+    import { account, storage } from "$lib/appwrite";
+    import { PUBLIC_BUCKET_ID } from "$env/static/public";
+    import { onMount } from "svelte";
 
     let loaded = false;
 
     let user = "User";
 
-    check().then((res) => {
-        if (res) {
-            account.get().then((model) => {
-                console.log(model);
-                user = model.name;
-                loaded = true;
-            }).catch((e) => {
-                console.log(e);
-                goto("/");
-            });
-        } else {
+    let loggingOut = false;
+
+    onMount(() => {
+        account.get().then((res) => {
+            user = res.name;
+        }).catch((e) => {
+            console.log(e);
             goto("/");
-        }
-    }).catch((e) => {
-        console.log(e);
+        }).finally(() => {
+            loaded = true;
+        });
     });
+
+    function logout() {
+        loggingOut = true;
+        account.deleteSession("current").then(() => {
+            goto("/");
+        }).catch((e) => {
+            console.log(e);
+            loggingOut = false;
+        });
+    }
 
 </script>
 
@@ -43,15 +50,18 @@
             <i class="fa-solid fa-user"></i>
             {user}!
         </div>
-        <button class="logout" title="Log out">
+        <button class="logout" title="Log out" disabled={loggingOut} on:click={logout}>
+            {#if loggingOut}
+                Logging out...
+            {:else}
             Logout <i class="fa-solid fa-sign-out"></i>
+            {/if}
         </button>
     </div>
     <div class="content">
         {#await storage.listFiles(PUBLIC_BUCKET_ID)}
             Loading files...
         {:then files} 
-            <!-- file explorer using table -->
             <table>
                 <colgroup>
                     <col span="1" style="width: 70%;">  
@@ -82,7 +92,6 @@
                         </tr>
                     {/each}
                 </tbody>
-                <!-- File count taking the full width -->
                 <tfoot>
                     <tr>
                         <td colspan="2">Total files: {files.total}</td>
