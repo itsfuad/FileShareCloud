@@ -46,8 +46,8 @@ export async function login(provider: Provider) {
     try {
         if (provider && isOAuthProvider(provider)) {
             account.createOAuth2Token(provider,
-                window.location.origin + '/auth/callback',
-                window.location.origin + '/auth/callback',
+                window.location.origin + '/auth/callback/',
+                window.location.origin + '/auth/callback/',
             );
             return true;
         }
