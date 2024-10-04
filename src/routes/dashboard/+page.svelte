@@ -4,7 +4,7 @@
     import { showToastMessage } from "@itsfuad/domtoastmessage";
     import QR from "qrcode";
 
-    import { storage, id, account, check } from "$lib/appwrite";
+    import { storage, id, account } from "$lib/appwrite";
     
     import { PUBLIC_BUCKET_ID } from '$env/static/public';
     import { goto } from "$app/navigation";
@@ -28,16 +28,6 @@
     let uploadStatus: 'idle' | 'uploading' = 'idle';
 
     let tab: 'upload' | 'download' = 'upload';
-
-    check().then((res) => {
-        if (res) {
-            console.log("User is logged in");
-        } else {
-            //goto("/");
-        }
-    }).catch((e) => {
-        console.log(e);
-    });
 
     async function uploadFile() {
         if (!fileInput) {
