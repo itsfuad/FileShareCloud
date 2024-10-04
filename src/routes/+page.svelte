@@ -28,7 +28,7 @@
         <div class="hero">
             <div class="top" in:fly={{ y: -5 }}>
                 <img class="logo" src="/logo.png" alt="logo" />
-                <div class="name">File Share Cloud</div>
+                <div class="name">File Basket</div>
                 <div class="version-info">
                     <div class="version">v.{version}</div>
                     Free and Open Source

@@ -9,7 +9,7 @@
 </script>
 
 <svelte:head>
-    <title>File share Cloud | Download</title>
+    <title>File Basket | Download</title>
 </svelte:head>
 
 {#if data.status == 200}

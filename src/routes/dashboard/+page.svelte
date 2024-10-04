@@ -137,7 +137,7 @@
 </script>
 
 <svelte:head>
-    <title>File share Cloud | Upload</title>
+    <title>File Basket | Upload</title>
 </svelte:head>
 
 <div class="tabContainer" in:fly|global={{y: 5}}>

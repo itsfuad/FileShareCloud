@@ -21,7 +21,7 @@
 </script>
 
 <svelte:head>
-    <title>File share Cloud</title>
+    <title>File Basket</title>
 </svelte:head>
 
 <NavigationIndicator />
