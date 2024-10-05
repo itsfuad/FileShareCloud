@@ -41,11 +41,10 @@
                 </li>
             </div>
         </div>
-
         {#if $userID !== null}
             <a href="/dash" class="btn" in:fly={{ delay: 250 }}> Dashboard </a>
         {:else}
-            <div class="form">
+            <div class="form" in:fly={{ delay: 250 }}>
                 <div class="join-title">Login with</div>
                 <div class="btnGrp">
                     <button
