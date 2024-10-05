@@ -1,6 +1,5 @@
 <script lang="ts">
-    import { enhance } from "$app/forms";
-    import { account, login, userID } from "$lib/appwrite.js";
+    import { login, userID } from "$lib/appwrite.js";
 
     import Preload from "$lib/Preload.svelte";
     import { OAuthProvider } from "appwrite";
