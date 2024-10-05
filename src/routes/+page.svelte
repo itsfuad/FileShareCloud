@@ -20,7 +20,7 @@
 {#if loaded}
     <div class="container">
         <div class="hero">
-            <div class="top" in:fly={{ y: -5 }}>
+            <div class="top" in:fly|global={{ y: -5 }}>
                 <img class="logo" src="/logo.png" alt="logo" />
                 <div class="name">File Basket</div>
                 <div class="version-info">
@@ -28,22 +28,22 @@
                     Free and Open Source
                 </div>
             </div>
-            <h1 class="moto" in:fly={{ y: 5, duration: 600 }}>
+            <h1 class="moto" in:fly|global={{ y: 5, duration: 600 }}>
                 Share files with anyone, anywhere.
             </h1>
             <div class="info-container">
-                <li class="info" in:fade={{ delay: 100 }}>
+                <li class="info" in:fade|global={{ delay: 100 }}>
                     Upload up to 50MB single file at once.
                 </li>
-                <li class="info" in:fade={{ delay: 150 }}>
+                <li class="info" in:fade|global={{ delay: 150 }}>
                     Your files will be deleted after 30 min.
                 </li>
             </div>
         </div>
         {#if $userID !== null}
-            <a href="/dash" class="btn" in:fly={{ delay: 250 }}> Dashboard </a>
+            <a href="/dash" class="btn" in:fly|global={{ delay: 250 }}> Dashboard </a>
         {:else}
-            <div class="form" in:fly={{ delay: 250 }}>
+            <div class="form" in:fly|global={{ delay: 250 }}>
                 <div class="join-title">Login with</div>
                 <div class="btnGrp">
                     <button
@@ -76,10 +76,10 @@
                 </div>
             </div>
         {/if}
-        <div class="terms" in:fade={{ delay: 300 }}>
+        <div class="terms" in:fade|global={{ delay: 300 }}>
             <a href="/terms">Terms of Service</a>
         </div>
-        <div class="footer" in:fade>
+        <div class="footer" in:fade|global>
             &copy; {new Date().getFullYear()} BrainbirdLab
         </div>
     </div>
