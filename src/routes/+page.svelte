@@ -1,6 +1,6 @@
 <script lang="ts">
     import { enhance } from "$app/forms";
-    import { account, login } from "$lib/appwrite.js";
+    import { account, login, userID } from "$lib/appwrite.js";
 
     import Preload from "$lib/Preload.svelte";
     import { OAuthProvider } from "appwrite";
@@ -10,14 +10,9 @@
 
     let version = __VERSION__;
 
-    let signedIn = false;
     let loaded = false;
 
-    account.get().then((res) => {
-        signedIn = true;
-    }).catch((e) => {
-        signedIn = false;
-    }).finally(() => {
+    onMount(() => {
         loaded = true;
     });
 
@@ -47,7 +42,7 @@
             </div>
         </div>
 
-        {#if signedIn}
+        {#if $userID !== null}
             <a href="/dash" class="btn" in:fly={{ delay: 250 }}> Dashboard </a>
         {:else}
             <div class="form">

@@ -4,9 +4,11 @@
     import { showToastMessage } from "@itsfuad/domtoastmessage";
     import QR from "qrcode";
 
-    import { storage, id, account } from "$lib/appwrite";
+    import { type DbFile } from "$lib/schema";
+
+    import { storage, id, account, dbs } from "$lib/appwrite";
     
-    import { PUBLIC_BUCKET_ID } from '$env/static/public';
+    import { PUBLIC_BUCKET_ID, PUBLIC_COLLECTION_ID, PUBLIC_DATABASE_ID } from '$env/static/public';
     import { goto } from "$app/navigation";
     import { fly } from "svelte/transition";
     import { bytesToReadable } from "$lib/utils";
@@ -30,27 +32,66 @@
     let tab: 'upload' | 'download' = 'upload';
 
     async function uploadFile() {
-        if (!fileInput) {
+        if (fileInput == null || fileInput.length == 0) {
             return;
         }
 
-        uploadStatus = 'uploading';
-        const user = await account.get();
+        let uploadedFileId = "";
+        let fileStoredInDB = "";
 
-        const result = await storage.createFile(PUBLIC_BUCKET_ID, id.unique(), fileInput[0], [
-            Permission.read(Role.users()),
-            Permission.read(Role.user(user.$id)),
-            Permission.delete(Role.user(user.$id)),
-        ], (progress) => {
-            console.log(progress);
-            uploadprogress = progress.progress;
-        });
-        clearInput();
-        qrURL = await QR.toDataURL(`${window.location.origin}/d/${result.$id}`);
-        console.log(result.$id);
-        DownloadID = result.$id;
-        uploadStatus = 'idle';
-        uploadprogress = 0;
+        try {
+            uploadStatus = 'uploading';
+            const user = await account.get();
+            storage.createFile(PUBLIC_BUCKET_ID, id.unique(), fileInput[0], [
+                Permission.read(Role.users()),
+                Permission.read(Role.user(user.$id)),
+                Permission.delete(Role.user(user.$id)),
+            ], (progress) => {
+                console.log(progress);
+                uploadprogress = progress.progress;
+            }).then((result) => {
+                uploadedFileId = result.$id;
+                dbs.createDocument(
+                    PUBLIC_DATABASE_ID, 
+                    PUBLIC_COLLECTION_ID, 
+                    id.unique(),
+                    {
+                        fileid: result.$id,
+                        creator: user.$id,
+                        filename: result.name,
+                        filesize: result.sizeOriginal,
+                        type: result.mimeType,
+                    } as DbFile,
+                    [
+                        Permission.read(Role.user(user.$id)),
+                        Permission.delete(Role.user(user.$id)),
+                    ]
+                ).then((res) => {
+                    fileStoredInDB = res.$id;
+                });
+            }).finally(() => {
+                clearInput();
+                QR.toDataURL(`${window.location.origin}/d/${uploadedFileId}`).then((url) => {
+                    qrURL = url;
+                }).finally(() => {
+                    DownloadID = uploadedFileId;
+                    uploadStatus = 'idle';
+                    uploadprogress = 0;
+                });
+            });
+
+        } catch (e) {
+            console.log(e);
+            showToastMessage("Failed to upload file");
+            uploadStatus = 'idle';
+            uploadprogress = 0;
+            if (uploadedFileId) {
+                storage.deleteFile(PUBLIC_BUCKET_ID, uploadedFileId);
+            }
+            if (fileStoredInDB) {
+                dbs.deleteDocument(PUBLIC_DATABASE_ID, PUBLIC_COLLECTION_ID, fileStoredInDB);
+            }
+        }
     }
 
     function changeHandler(event: Event) {
@@ -391,6 +432,7 @@
         font-size: 1.1rem;
         font-weight: bold;
         padding-bottom: 5px;
+        color: var(--text-color);
     }
 
     .formfield {

@@ -1,10 +1,12 @@
 <script lang="ts">
     import { goto } from "$app/navigation";
     import Preload from "$lib/Preload.svelte";
-    import { bytesToReadable } from "$lib/utils";
-    import { account, storage } from "$lib/appwrite";
-    import { PUBLIC_BUCKET_ID } from "$env/static/public";
+    import { bytesToReadable, fileType } from "$lib/utils";
+    import { account, dbs, userID } from "$lib/appwrite";
+    import { PUBLIC_COLLECTION_ID, PUBLIC_DATABASE_ID } from "$env/static/public";
     import { onMount } from "svelte";
+    import { Query } from "appwrite";
+    import type { DbFile } from "$lib/schema";
 
     let loaded = false;
 
@@ -33,6 +35,19 @@
         });
     }
 
+    async function getFiles(): Promise<DbFile[]> {
+        if ($userID == null) {
+            return [] as DbFile[];
+        }
+        const documents = await dbs.listDocuments(PUBLIC_DATABASE_ID, PUBLIC_COLLECTION_ID, [
+            Query.equal("creator", $userID),
+        ]);
+
+        console.log(documents.documents);
+
+        return documents.documents as DbFile[];
+    }
+
 </script>
 
 <svelte:head>
@@ -59,49 +74,50 @@
         </button>
     </div>
     <div class="content">
-        {#await storage.listFiles(PUBLIC_BUCKET_ID)}
-            Loading files...
-        {:then files} 
-            <table>
-                <colgroup>
-                    <col span="1" style="width: 70%;">  
-                    <col span="1" style="width: 100px;">  
-                    <col span="1" style="width: 100px;">
-                </colgroup>
-                <thead>
+        {#if $userID != null}
+        <table>
+            <colgroup>
+                <col span="1" style="width: 70%;">  
+                <col span="1" style="width: 100px;">  
+                <col span="1" style="width: 100px;">
+                <col span="1" style="width: 100px;">
+            </colgroup>
+            <thead>
+                <tr>
+                    <th>File Name</th>
+                    <th>Type</th>
+                    <th>Size</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {#await getFiles()}
+                Loading files...
+                {:then files}
+                    {#each files as file}
                     <tr>
-                        <th>Name</th>
-                        <th>Type</th>
-                        <th>Size</th>
+                        <td>{file.filename}</td>
+                        <td>{fileType(file.type)}</td>
+                        <td>{bytesToReadable(file.filesize)}</td>
+                        <td class="action">
+                            <i class="fa-solid fa-ellipsis"></i>
+                        </td>
                     </tr>
-                </thead>
-                <tbody>
-                    {#each files.files as file}
-                        <tr>
-                            <td>{file.name}</td>
-                            <td>
-                                {#if file.mimeType}
-                                    {
-                                        file.mimeType.includes("/") ? file.mimeType.split("/")[1] : file.mimeType
-                                    }
-                                {:else}
-                                    Unknown
-                                {/if}
-                            </td>
-                            <td>{bytesToReadable(file.sizeOriginal)}</td>
-                        </tr>
                     {/each}
-                </tbody>
-                <tfoot>
-                    <tr>
-                        <td colspan="2">Total files: {files.total}</td>
-                        <td>{bytesToReadable(files.files.reduce((acc, file) => acc + file.sizeOriginal, 0))}</td>
-                    </tr>
-                </tfoot>
-            </table>
-        {:catch error}
-            <div>{error.message}</div>
-        {/await}
+                <tr>
+                    <td colspan="2">{files.length ? files.length : "No "} files found</td>
+                    <td>
+                        {bytesToReadable(files.reduce((acc, file) => acc + file.filesize, 0))}
+                    </td>
+                </tr>
+                {:catch error}
+                <tr>
+                    <td colspan="3">Error: {error.message}</td>
+                </tr>
+                {/await}
+            </tbody>
+        </table>
+        {/if}
     </div>
 </div>
 {/if}
@@ -114,6 +130,18 @@
         min-height: 100%;
         padding: 10px;
         width: min(800px, 100%);
+    }
+
+    .action {
+        text-align: center;
+        cursor: pointer;
+        i {
+            width: 100%;
+            text-align: center;
+        }
+        &:hover {
+            filter: brightness(0.9);
+        }
     }
 
     .logout {
@@ -142,16 +170,21 @@
             border-collapse: collapse;
             table-layout: fixed;
             border-radius: 5px;
+            font-size: 0.8rem;
             th, td {
-                border: 1px solid var(--ui-color);
+                //border: 1px solid var(--ui-color);
                 padding: 10px;
                 text-align: left;
                 white-space: nowrap;
                 text-overflow: ellipsis;
                 overflow: hidden;
             }
+            // border bottom to tr
+            tr {
+                border-bottom: 1px solid var(--ui-color);
+            }
             th {
-                background: var(--ui-color);
+                //background: var(--ui-color);
             }
         }
     }

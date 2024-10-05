@@ -1,6 +1,7 @@
-import { Client, ID, Storage, Account, OAuthProvider } from 'appwrite';
+import { Client, ID, Storage, Account, OAuthProvider, Databases } from 'appwrite';
 
 import { PUBLIC_PROJECT_ID } from '$env/static/public';
+import { writable } from 'svelte/store';
 
 
 export const client = new Client();
@@ -9,8 +10,11 @@ client
     .setProject(PUBLIC_PROJECT_ID);
 
 export const storage = new Storage(client);
+export const dbs = new Databases(client);
 export const account = new Account(client);
 export const id = ID;
+
+export const userID = writable<string | null>(null);
 
 export async function isLoggedIn(sessionId: string) {
     console.log("Checking if logged in");

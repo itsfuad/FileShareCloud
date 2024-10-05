@@ -6,6 +6,14 @@ export function bytesToReadable(bytes: number): string {
     return (bytes / Math.pow(1024, i)).toFixed(2) + ' ' + sizes[i];
 }
 
+export function fileType(filetype: string): string {
+    if (filetype.includes('/')) {
+        return filetype.split('/')[1];
+    }
+
+    return filetype;
+}
+
 const iconMap: {[key: string]: string} = {
     'video': 'fa-file-video',
     'audio': 'fa-file-audio',
