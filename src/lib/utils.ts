@@ -21,6 +21,7 @@ const iconMap: {[key: string]: string} = {
     'file': 'fa-file-lines',
     'pdf': 'fa-file-pdf',
     'zip': 'fa-file-zipper',
+    'rar': 'fa-file-zipper',
     'word': 'fa-file-word',
     'excel': 'fa-file-excel',
     'powerpoint': 'fa-file-powerpoint',
