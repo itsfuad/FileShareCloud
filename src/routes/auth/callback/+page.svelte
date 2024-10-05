@@ -1,6 +1,6 @@
 <script lang="ts">
     import { goto } from "$app/navigation";
-    import { account } from "$lib/appwrite";
+    import { account, userID } from "$lib/appwrite";
     import { onMount } from "svelte";
 
     export let data;
@@ -17,6 +17,7 @@
             .then((res) => {
                 state = "Session created";
                 console.log(res);
+                userID.set(data.props.userId);
             }).catch((e) => {
                 console.log(e);
                 state = "Error creating session";
