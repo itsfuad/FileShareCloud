@@ -28,6 +28,7 @@
     function logout() {
         loggingOut = true;
         account.deleteSession("current").then(() => {
+            userID.set(null);
             goto("/");
         }).catch((e) => {
             console.log(e);
