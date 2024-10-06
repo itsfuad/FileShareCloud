@@ -4,16 +4,18 @@
 
     import NavigationIndicator from "$lib/NavigationIndicator.svelte";
     import { onMount } from "svelte";
-    import { invalidateAll } from "$app/navigation";
+    import { invalidateAll, onNavigate } from "$app/navigation";
     import { account, userID } from "$lib/appwrite";
 
     let loaded = false;
 
     onMount(async () => {
         try {
-            const user = await account.get();
-            console.log(user);
-            userID.set(user.$id);
+            onNavigate( async () => {
+                const user = await account.get();
+                console.log(user);
+                userID.set(user.$id);
+            });
             account.client.subscribe(['account', 'files'], (payload) => {
                 console.log(payload);
                 //invalidateAll();
