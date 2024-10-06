@@ -54,9 +54,8 @@
                 dbs.createDocument(
                     PUBLIC_DATABASE_ID, 
                     PUBLIC_COLLECTION_ID, 
-                    id.unique(),
+                    result.$id,
                     {
-                        fileid: result.$id,
                         creator: user.$id,
                         filename: result.name,
                         filesize: result.sizeOriginal,
@@ -68,16 +67,19 @@
                     ]
                 ).then((res) => {
                     fileStoredInDB = res.$id;
+                    QR.toDataURL(`${window.location.origin}/d/${uploadedFileId}`).then((url) => {
+                        qrURL = url;
+                    });
+                    DownloadID = uploadedFileId;
+                }).catch((e) => {
+                    console.log(e);
+                    showToastMessage("Failed to store file in database");
+                    storage.deleteFile(PUBLIC_BUCKET_ID, uploadedFileId);
                 });
             }).finally(() => {
                 clearInput();
-                QR.toDataURL(`${window.location.origin}/d/${uploadedFileId}`).then((url) => {
-                    qrURL = url;
-                }).finally(() => {
-                    DownloadID = uploadedFileId;
-                    uploadStatus = 'idle';
-                    uploadprogress = 0;
-                });
+                uploadStatus = 'idle';
+                uploadprogress = 0;
             });
 
         } catch (e) {
