@@ -6,6 +6,7 @@
     import { onMount } from "svelte";
     import { invalidateAll, onNavigate } from "$app/navigation";
     import { account, userID } from "$lib/appwrite";
+    import Preload from "$lib/Preload.svelte";
 
     let loaded = false;
 
@@ -36,4 +37,6 @@
 {#if loaded}
 <NavigationIndicator />
 <slot></slot>
+{:else}
+<Preload />
 {/if}
